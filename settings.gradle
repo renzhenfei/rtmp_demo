@@ -1,0 +1,5 @@
+include ':checkplugin'
+include ':app'
+rootProject.name = "rtmp_demo"
+
+println('--------------------setting------------------')
