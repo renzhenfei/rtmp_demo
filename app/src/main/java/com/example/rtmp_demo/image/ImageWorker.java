@@ -62,11 +62,11 @@ public abstract class ImageWorker {
 
     public static boolean cancelPotentialWork(Object data, ImageView imageView) {
         BitmapWorkTask bitmapWorkTask = getBitmapWorkTask(imageView);
-        if (bitmapWorkTask != null){
+        if (bitmapWorkTask != null) {
             Object bitmapData = bitmapWorkTask.data;
-            if (bitmapData == null || !bitmapData.equals(data)){
+            if (bitmapData == null || !bitmapData.equals(data)) {
                 bitmapWorkTask.cancel(true);
-            }else {
+            } else {
                 return false;
             }
         }
@@ -126,7 +126,7 @@ public abstract class ImageWorker {
                 success = true;
                 setImageDrawable(imageView, bitmapDrawable);
             }
-            if (onImageLoadListener != null){
+            if (onImageLoadListener != null) {
                 onImageLoadListener.onImageLoaded(success);
             }
         }
@@ -134,17 +134,17 @@ public abstract class ImageWorker {
         private void setImageDrawable(ImageView imageView, BitmapDrawable bitmapDrawable) {
             if (fadeInBitmap) {
                 TransitionDrawable transitionDrawable = new TransitionDrawable(new Drawable[]{new ColorDrawable(Color.TRANSPARENT), bitmapDrawable});
-                imageView.setBackgroundDrawable(new BitmapDrawable(resources,loadingBitmap));
+                imageView.setBackgroundDrawable(new BitmapDrawable(resources, loadingBitmap));
                 imageView.setImageDrawable(transitionDrawable);
                 transitionDrawable.startTransition(FADE_IN_TIME);
-            }else {
+            } else {
                 imageView.setImageDrawable(bitmapDrawable);
             }
         }
 
         @Override
         protected void onCancelled(BitmapDrawable bitmapDrawable) {
-            synchronized (pauseWorkLock){
+            synchronized (pauseWorkLock) {
                 pauseWorkLock.notifyAll();
             }
         }

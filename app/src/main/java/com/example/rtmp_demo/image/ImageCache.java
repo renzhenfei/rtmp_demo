@@ -147,8 +147,8 @@ public class ImageCache {
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
-                }finally {
-                    if (inputStream != null){
+                } finally {
+                    if (inputStream != null) {
                         try {
                             inputStream.close();
                         } catch (IOException e) {
@@ -200,7 +200,7 @@ public class ImageCache {
                             iterator.remove();
                             break;
                         }
-                    }else {
+                    } else {
                         iterator.remove();
                     }
                 }
@@ -220,43 +220,43 @@ public class ImageCache {
     }
 
     private int getBytesPerPixel(Bitmap.Config config) {
-        if (config == Bitmap.Config.ARGB_8888){
+        if (config == Bitmap.Config.ARGB_8888) {
             return 4;
-        }else if (config == Bitmap.Config.RGB_565){
+        } else if (config == Bitmap.Config.RGB_565) {
             return 2;
-        }else if (config == Bitmap.Config.ARGB_4444){
+        } else if (config == Bitmap.Config.ARGB_4444) {
             return 2;
-        }else if (config == Bitmap.Config.ALPHA_8){
+        } else if (config == Bitmap.Config.ALPHA_8) {
             return 1;
         }
         return 1;
     }
 
     public void addBitmapToCache(String data, BitmapDrawable bitmapDrawable) {
-        if (data == null || bitmapDrawable == null){
+        if (data == null || bitmapDrawable == null) {
             return;
         }
-        if (memCache != null){
-            if (bitmapDrawable instanceof RecycleBitmapDrawable){
+        if (memCache != null) {
+            if (bitmapDrawable instanceof RecycleBitmapDrawable) {
                 ((RecycleBitmapDrawable) bitmapDrawable).setIsCached(true);
             }
-            memCache.put(data,bitmapDrawable);
+            memCache.put(data, bitmapDrawable);
         }
-        synchronized (diskCacheLock){
-            if (diskLruCache != null){
+        synchronized (diskCacheLock) {
+            if (diskLruCache != null) {
                 String key = hasKeyForDisk(data);
                 OutputStream outputStream;
                 try {
                     DiskLruCache.Snapshot snapshot = diskLruCache.get(key);
-                    if (snapshot == null){
+                    if (snapshot == null) {
                         DiskLruCache.Editor edit = diskLruCache.edit(key);
-                        if (edit != null){
+                        if (edit != null) {
                             outputStream = edit.newOutputStream(DISK_CACHE_INDEX);
-                            bitmapDrawable.getBitmap().compress(imageCacheParam.compressFormat,imageCacheParam.compressQuality,outputStream);
+                            bitmapDrawable.getBitmap().compress(imageCacheParam.compressFormat, imageCacheParam.compressQuality, outputStream);
                             edit.commit();
                             outputStream.close();
                         }
-                    }else {
+                    } else {
                         snapshot.getInputStream(DISK_CACHE_INDEX).close();
                     }
                 } catch (IOException e) {
@@ -266,12 +266,12 @@ public class ImageCache {
         }
     }
 
-    public void clearCache(){
-        if (memCache != null){
+    public void clearCache() {
+        if (memCache != null) {
             memCache.evevictAll();
         }
-        synchronized (diskCacheLock){
-            if (diskCacheLock != null && !diskLruCache.isClosed()){
+        synchronized (diskCacheLock) {
+            if (diskCacheLock != null && !diskLruCache.isClosed()) {
                 try {
                     diskLruCache.delete();
                 } catch (IOException e) {

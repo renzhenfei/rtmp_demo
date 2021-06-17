@@ -22,18 +22,18 @@ public class ImageResizer {
     public static Bitmap decodeSampledBitmapFromDescriptor(FileDescriptor fd, int reqWidth, int reqHeight, ImageCache imageCache) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFileDescriptor(fd,null,options);
-        options.inSampleSize = calculateInSampleSize(options,reqWidth,reqHeight);
+        BitmapFactory.decodeFileDescriptor(fd, null, options);
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
         options.inJustDecodeBounds = false;
-        addInBitmapOptions(options,imageCache);
+        addInBitmapOptions(options, imageCache);
         return null;
     }
 
     private static void addInBitmapOptions(BitmapFactory.Options options, ImageCache imageCache) {
         options.inMutable = true;
-        if (imageCache != null){
+        if (imageCache != null) {
             Bitmap inBitmap = imageCache.getBitmapFromReusableSet(options);
-            if (inBitmap != null){
+            if (inBitmap != null) {
                 options.inBitmap = inBitmap;
             }
         }
