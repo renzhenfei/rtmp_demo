@@ -61,6 +61,14 @@ public class ImageCache {
         init(imageCacheParam);
     }
 
+    public static File getDiskCacheDir(Context context, String uniqueName) {
+        String path = Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
+                !Environment.isExternalStorageRemovable() ?
+                context.getExternalCacheDir().getPath() :
+                context.getCacheDir().getPath();
+        return new File(path + File.separator + uniqueName);
+    }
+
     private void init(ImageCacheParam imageCacheParam) {
         this.imageCacheParam = imageCacheParam;
         if (imageCacheParam.memCacheEnable) {
@@ -87,7 +95,7 @@ public class ImageCache {
         }
     }
 
-    private void initDiskCache() {
+    void initDiskCache() {
         synchronized (diskCacheLock) {
             if (diskLruCache == null || diskLruCache.isClosed()) {
                 File diskCacheDir = imageCacheParam.diskCacheDir;
@@ -116,7 +124,7 @@ public class ImageCache {
     }
 
     public BitmapDrawable getBitmapFromMemCache(String data) {
-        BitmapDrawable memDrawable;
+        BitmapDrawable memDrawable = null;
         if (memCache != null) {
             memDrawable = memCache.get(data);
         }
@@ -268,7 +276,7 @@ public class ImageCache {
 
     public void clearCache() {
         if (memCache != null) {
-            memCache.evevictAll();
+            memCache.evictAll();
         }
         synchronized (diskCacheLock) {
             if (diskCacheLock != null && !diskLruCache.isClosed()) {
@@ -279,6 +287,32 @@ public class ImageCache {
                 }
                 diskLruCache = null;
                 initDiskCache();
+            }
+        }
+    }
+
+    public void flush() {
+        synchronized (diskCacheLock){
+            if (diskLruCache != null){
+                try {
+                    diskLruCache.flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public void close() {
+        synchronized (diskCacheLock){
+            if (diskLruCache != null){
+                if (!diskLruCache.isClosed()){
+                    try {
+                        diskLruCache.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
     }

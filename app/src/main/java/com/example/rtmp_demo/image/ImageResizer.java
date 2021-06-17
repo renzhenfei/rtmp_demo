@@ -1,11 +1,56 @@
 package com.example.rtmp_demo.image;
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import java.io.FileDescriptor;
 
-public class ImageResizer {
+public class ImageResizer extends ImageWorker {
+
+    private static final String TAG = "ImageResizer";
+
+    protected int imageWidth;
+    protected int imageHeight;
+
+    public ImageResizer(Context context,int imageWidth,int imageHeight){
+        super(context);
+        setImageSize(imageWidth,imageHeight);
+    }
+
+    public ImageResizer(Context context,int size){
+        super(context);
+        setImageSize(size,size);
+    }
+
+    private void setImageSize(int imageWidth, int imageHeight) {
+        this.imageWidth = imageWidth;
+        this.imageHeight = imageHeight;
+    }
+
+    public void setSize(int size){
+        setImageSize(size,size);
+    }
+
+    private Bitmap processBitmap(int resId) {
+        return decodeSampledBitmapFromResource(resources,resId,imageWidth,imageHeight,getImageCache());
+    }
+
+    private Bitmap decodeSampledBitmapFromResource(Resources resources, int resId, int imageWidth, int imageHeight, ImageCache imageCache) {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeResource(resources,resId,options);
+        options.inSampleSize = calculateInSampleSize(options,imageWidth,imageHeight);
+        options.inJustDecodeBounds = false;
+        addInBitmapOptions(options,imageCache);
+        return BitmapFactory.decodeResource(resources,resId,options);
+    }
+
+    @Override
+    Bitmap processBitmap(Object data) {
+        return processBitmap(Integer.parseInt(String.valueOf(data)));
+    }
 
     public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
         int outWidth = options.outWidth;

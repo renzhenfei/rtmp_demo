@@ -73,6 +73,10 @@ public abstract class ImageWorker {
         return true;
     }
 
+    public ImageCache getImageCache() {
+        return imageCache;
+    }
+
     private class BitmapWorkTask extends AsyncTask<Void, Void, BitmapDrawable> {
         private Object data;
         private WeakReference<ImageView> imageViewWeakReference;
@@ -96,7 +100,11 @@ public abstract class ImageWorker {
 
             synchronized (pauseWorkLock) {
                 while (pauseWork && !isCancelled()) {
-                    pauseWorkLock.wait();
+                    try {
+                        pauseWorkLock.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
             if (imageCache != null && !isCancelled() && getAttachedImageView() != null && !exitTaskEarly) {
@@ -159,7 +167,32 @@ public abstract class ImageWorker {
         }
     }
 
-    abstract Bitmap processBitmap(String data);
+    abstract Bitmap processBitmap(Object data);
+
+    protected void initDiskCacheInternal() {
+        if (imageCache != null) {
+            imageCache.initDiskCache();
+        }
+    }
+
+    protected void clearCacheInternal() {
+        if (imageCache != null) {
+            imageCache.clearCache();
+        }
+    }
+
+    protected void flushCacheInternal() {
+        if (imageCache != null) {
+            imageCache.flush();
+        }
+    }
+
+    protected void closeCacheInternal() {
+        if (imageCache != null) {
+            imageCache.close();
+            imageCache = null;
+        }
+    }
 
     private static BitmapWorkTask getBitmapWorkTask(ImageView imageView) {
         if (imageView != null) {
